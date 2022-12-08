@@ -1,0 +1,11 @@
+[package]
+name = "ACO"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+petgraph = { git = "https://github.com/petgraph/petgraph.git"}
+serde_json = "1.0"
+rand = "0.8"
