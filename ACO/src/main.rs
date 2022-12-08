@@ -53,7 +53,7 @@ fn main() {
     println!("{:?}", Dot::with_config(&graph, &[Config::EdgeIndexLabel]));
     let mut pheromonematrix = vec![vec![0.0; 12]; 12];
     //dbg!(&edges);
-    let depth = 5;
+    let depth = 25;
     ACO(&mut pheromonematrix, &graph, &edges, &nest, &food, depth);
 
 
@@ -88,7 +88,7 @@ impl Ant{
 
 fn ACO(pheromoneMatrix: &mut Vec<Vec<f64>>, graph: &Graph<&str,f64,Undirected>, edges: &HashMap<(NodeIndex,NodeIndex), petgraph::prelude::EdgeIndex>, nest:&NodeIndex,food:&NodeIndex, depth : i32) {
     for i in 0..depth{
-        let mut ants = vec![Ant::new(1, *nest),Ant::new(2, *nest), Ant::new(3, *nest)];
+        let mut ants = vec![Ant::new(1, *nest),Ant::new(2, *nest), Ant::new(3, *nest), Ant::new(4, *nest), Ant::new(5, *nest), Ant::new(6, *nest)];
         //,Ant::new(2, *nest), Ant::new(3, *nest), Ant::new(4, *nest), Ant::new(5, *nest), Ant::new(6, *nest), Ant::new(7, *nest), Ant::new(8, *nest), Ant::new(9, *nest), Ant::new(10, *nest)
         //let mut pheromonematrix = pheromoneMatrix.clone();
     
@@ -149,10 +149,13 @@ fn nextNode(currentNode: NodeIndex, pheromoneMatrix: &mut Vec<Vec<f64>>, graph: 
     //select next node according to probabilities
     let mut rng = rand::thread_rng();
     let x = probabilities.iter().fold(0.0, |acc, x| acc + x*100.0);
-    let mut random = rng.gen_range(0..x as i64);
+    dbg!(x);
+    let mut random = rng.gen_range(0..x as i64) as f64;
+    dbg!(random);
+    dbg!(&probabilities);
     let mut i = 0;
-    while random as f64 > probabilities[i]*100.0{
-        random -= (probabilities[i]*100.0) as i64;
+    while random > probabilities[i]*100.0{
+        random -= probabilities[i]*100.0;
         i += 1;
     }
     //let i = rng.gen_range(0..probabilities.len());
