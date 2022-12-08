@@ -53,8 +53,11 @@ fn main() {
     println!("{:?}", Dot::with_config(&graph, &[Config::EdgeIndexLabel]));
     let mut pheromonematrix = vec![vec![0.0; 12]; 12];
     //dbg!(&edges);
-    ACO(&mut pheromonematrix, &graph, &edges, &nest, &food);
-    dbg!(pheromonematrix);
+    let depth = 5;
+    ACO(&mut pheromonematrix, &graph, &edges, &nest, &food, depth);
+
+
+
 
     //println!("{:?}", Dot::with_config(&graph, &[Config::EdgeIndexLabel]));
 
@@ -78,43 +81,47 @@ impl Ant{
             finished: false,
             hasFood: false,
             path: Vec::new(),
-            totalDistance: 0.1,
+            totalDistance: 0.0,
         }
     }
 }
 
-fn ACO(pheromoneMatrix: &mut Vec<Vec<f64>>, graph: &Graph<&str,f64,Undirected>, edges: &HashMap<(NodeIndex,NodeIndex), petgraph::prelude::EdgeIndex>, nest:&NodeIndex,food:&NodeIndex) {
-    let mut ants = vec![Ant::new(1, *nest)];
-    //,Ant::new(2, *nest), Ant::new(3, *nest), Ant::new(4, *nest), Ant::new(5, *nest), Ant::new(6, *nest), Ant::new(7, *nest), Ant::new(8, *nest), Ant::new(9, *nest), Ant::new(10, *nest)
-    //let mut pheromonematrix = pheromoneMatrix.clone();
-
-    let mut runningAnts = ants.len();
-
-    //while !ants.iter().fold( true, |acc,ant| acc&&ant.finished){  //marche pas a cause du borrow
-    while runningAnts > 0{
-        //dbg!("while");
-        //for ant in ants.iter().filter(|x| x.finished).collect::<Vec<Ant>>(){  //probleme de reference chiant
-        for i in 0..ants.len(){
-            //let next_location = ;
-            if !ants[i].finished{
-                ants[i].location= nextNode(ants[i].location, pheromoneMatrix, graph, edges, &mut ants[i]);
-                dbg!(ants[i].location);
-                dbg!(&ants[i].path);
-                if ants[i].location == *food && !ants[i].hasFood{
-                    ants[i].hasFood = true;
-                    ants[i].path = vec![*food];
-                    dbg!("ant has food");
+fn ACO(pheromoneMatrix: &mut Vec<Vec<f64>>, graph: &Graph<&str,f64,Undirected>, edges: &HashMap<(NodeIndex,NodeIndex), petgraph::prelude::EdgeIndex>, nest:&NodeIndex,food:&NodeIndex, depth : i32) {
+    for i in 0..depth{
+        let mut ants = vec![Ant::new(1, *nest),Ant::new(2, *nest), Ant::new(3, *nest)];
+        //,Ant::new(2, *nest), Ant::new(3, *nest), Ant::new(4, *nest), Ant::new(5, *nest), Ant::new(6, *nest), Ant::new(7, *nest), Ant::new(8, *nest), Ant::new(9, *nest), Ant::new(10, *nest)
+        //let mut pheromonematrix = pheromoneMatrix.clone();
+    
+        let mut runningAnts = ants.len();
+    
+        //while !ants.iter().fold( true, |acc,ant| acc&&ant.finished){  //marche pas a cause du borrow
+        while runningAnts > 0{
+            //dbg!("while");
+            //for ant in ants.iter().filter(|x| x.finished).collect::<Vec<Ant>>(){  //probleme de reference chiant
+            for i in 0..ants.len(){
+                //let next_location = ;
+                if !ants[i].finished{
+                    ants[i].location= nextNode(ants[i].location, pheromoneMatrix, graph, edges, &mut ants[i]);
+                    //dbg!(ants[i].location);
+                    //dbg!(&ants[i].path);
+                    if ants[i].location == *food && !ants[i].hasFood{
+                        ants[i].hasFood = true;
+                        ants[i].path = vec![*food];
+                        dbg!("ant has food");
+                    }
+                    if ants[i].location == *nest && ants[i].hasFood{
+                        ants[i].finished = true;
+                        runningAnts-=1;
+                        dbg!("ant finished");
+                    }
                 }
-                if ants[i].location == *nest && ants[i].hasFood{
-                    ants[i].finished = true;
-                    runningAnts-=1;
-                    dbg!("ant finished");
-                }
+    
             }
-
         }
+        depositPheromone(ants, pheromoneMatrix, edges);
+        dbg!(&pheromoneMatrix);
     }
-    depositPheromone(ants, pheromoneMatrix, edges);
+
 }
 
 fn nextNode(currentNode: NodeIndex, pheromoneMatrix: &mut Vec<Vec<f64>>, graph: &Graph<&str,f64,Undirected>, edges:&HashMap<(NodeIndex,NodeIndex), petgraph::prelude::EdgeIndex>, ant:&mut Ant) -> NodeIndex{
@@ -131,23 +138,26 @@ fn nextNode(currentNode: NodeIndex, pheromoneMatrix: &mut Vec<Vec<f64>>, graph: 
         if ant.path.contains(&node){
             continue;
         }
-        dbg!(currentNode, node);
+        //dbg!(currentNode, node);
         let value = pheromoneMatrix[currentNode.index()][node.index()].powf(alpha) + (graph.edge_weight(edges[&(currentNode, node)]).unwrap().to_owned() as f64).powf(-beta);
         sum += value;
         Neighbors.push(node);
         probabilities.push(value);
     }
     probabilities = probabilities.iter().map(|x| x/sum).collect::<Vec<f64>>();
+    //dbg!(&probabilities);
     //select next node according to probabilities
     let mut rng = rand::thread_rng();
-    // let mut random:f64 = rng.gen_range(0..100) as f64;
-    // let mut i = 0;
-    // while random/100.0 > probabilities[i]{
-    //     random -= probabilities[i];
-    //     i += 1;
-    // }
-    let i = rng.gen_range(0..probabilities.len());
+    let x = probabilities.iter().fold(0.0, |acc, x| acc + x*100.0);
+    let mut random = rng.gen_range(0..x as i64);
+    let mut i = 0;
+    while random as f64 > probabilities[i]*100.0{
+        random -= (probabilities[i]*100.0) as i64;
+        i += 1;
+    }
+    //let i = rng.gen_range(0..probabilities.len());
     ant.path.push(Neighbors[i]);
+    ant.totalDistance += graph.edge_weight(edges[&(currentNode, Neighbors[i])]).unwrap().to_owned() as f64;
     //ant.location = graph.neighbors(currentNode).nth(i).unwrap();
     return Neighbors[i];
 }
