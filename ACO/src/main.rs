@@ -55,6 +55,22 @@ fn main() {
     //dbg!(&edges);
     let depth = 25;
     ACO(&mut pheromonematrix, &graph, &edges, &nest, &food, depth);
+    let mut i = 0 ;
+    let mut j = 0 ; 
+    for nodes in graph.node_indices(){
+        println!("Node: {:?}", nodes);
+        //dbg!(i);
+        for nodes2 in graph.node_indices(){
+            if i==12 || j==12{
+                break;
+            }
+            if pheromonematrix[i][j] != 0.0{
+                println!("pheromone from {:?} to {:?} is {:?}", nodes, nodes2, pheromonematrix[i][j]);
+            }
+            j+=1;
+        }
+        i+=1;
+    }
 
 
 
@@ -149,10 +165,10 @@ fn nextNode(currentNode: NodeIndex, pheromoneMatrix: &mut Vec<Vec<f64>>, graph: 
     //select next node according to probabilities
     let mut rng = rand::thread_rng();
     let x = probabilities.iter().fold(0.0, |acc, x| acc + x*100.0);
-    dbg!(x);
+    //dbg!(x);
     let mut random = rng.gen_range(0..x as i64) as f64;
-    dbg!(random);
-    dbg!(&probabilities);
+    //dbg!(random);
+    //dbg!(&probabilities);
     let mut i = 0;
     while random > probabilities[i]*100.0{
         random -= probabilities[i]*100.0;
@@ -171,7 +187,7 @@ fn depositPheromone( ants: Vec<Ant>, pheromoneMatrix: &mut Vec<Vec<f64>>, edges:
     for ant in ants{
         for i in 0..ant.path.len()-2{
             let value = (1.0-rho)*pheromoneMatrix[ant.path[i].index()][ant.path[i+1].index()] + 1.0/ant.totalDistance;
-            dbg!((1.0-rho)*pheromoneMatrix[ant.path[i].index()][ant.path[i+1].index()]);
+            //dbg!((1.0-rho)*pheromoneMatrix[ant.path[i].index()][ant.path[i+1].index()]);
             pheromoneMatrix[ant.path[i].index()][ant.path[i+1].index()] = value;
             pheromoneMatrix[ant.path[i+1].index()][ant.path[i].index()] = value;
         }
