@@ -5,6 +5,7 @@ use petgraph::dot::{Dot,Config};
 use std::collections::HashMap;
 use petgraph::Undirected;
 use rand::Rng;
+use serde_json;
 
 fn main() {
     let mut graph = Graph::new_undirected();
@@ -12,7 +13,7 @@ fn main() {
     let food = graph.add_node("food");
     let mut nodes = Vec::new();
     let mut s = &1.to_string();
-    let mut string = vec!["0","1","2","3","4","5","6","7","8","9"];
+    let mut string = vec!["2","3","4","5","6","7","8","9","10","11"];
     for i in 0..10{
         let node = graph.add_node(string[i]);
         nodes.push(node);
@@ -22,60 +23,65 @@ fn main() {
 
     //faire une matrice a la place
 
-    edges.insert((nest, nodes[0]), graph.add_edge(nest, nodes[0], 1.0));
-    edges.insert((nest, nodes[1]), graph.add_edge(nest, nodes[1], 1.0));
+    edges.insert((nest, nodes[0]), graph.add_edge(nest, nodes[0], 2.0));
+    edges.insert((nest, nodes[1]), graph.add_edge(nest, nodes[1], 2.0));
     edges.insert((nest, nodes[2]), graph.add_edge(nest, nodes[2], 1.0));
     edges.insert((nodes[2], nodes[3]), graph.add_edge(nodes[2], nodes[3], 1.0));
     edges.insert((nodes[3], food), graph.add_edge(nodes[3], food, 1.0));
-    edges.insert((nodes[1], nodes[4]), graph.add_edge(nodes[1], nodes[4], 1.0));
-    edges.insert((nodes[4], nodes[5]), graph.add_edge(nodes[4], nodes[5], 1.0));
-    edges.insert((nodes[5], nodes[6]), graph.add_edge(nodes[5], nodes[6], 1.0));
-    edges.insert((nodes[6], nodes[7]), graph.add_edge(nodes[6], nodes[7], 1.0));
-    edges.insert((nodes[7], food), graph.add_edge(nodes[7], food, 1.0));
-    edges.insert((nodes[0], nodes[8]), graph.add_edge(nodes[0], nodes[8], 1.0));
-    edges.insert((nodes[8], nodes[9]), graph.add_edge(nodes[8], nodes[9], 1.0));
-    edges.insert((nodes[9], food), graph.add_edge(nodes[9], food, 1.0));
+    edges.insert((nodes[1], nodes[4]), graph.add_edge(nodes[1], nodes[4], 2.0));
+    edges.insert((nodes[4], nodes[5]), graph.add_edge(nodes[4], nodes[5], 2.0));
+    edges.insert((nodes[5], nodes[6]), graph.add_edge(nodes[5], nodes[6], 2.0));
+    edges.insert((nodes[6], nodes[7]), graph.add_edge(nodes[6], nodes[7], 2.0));
+    edges.insert((nodes[7], food), graph.add_edge(nodes[7], food, 2.0));
+    edges.insert((nodes[0], nodes[8]), graph.add_edge(nodes[0], nodes[8], 2.0));
+    edges.insert((nodes[8], nodes[9]), graph.add_edge(nodes[8], nodes[9], 2.0));
+    edges.insert((nodes[9], food), graph.add_edge(nodes[9], food, 2.0));
 
-    edges.insert(( nodes[0],nest), graph.add_edge(nest, nodes[0], 1.0));
-    edges.insert((nodes[1],nest), graph.add_edge(nest, nodes[1], 1.0));
+    edges.insert(( nodes[0],nest), graph.add_edge(nest, nodes[0], 2.0));
+    edges.insert((nodes[1],nest), graph.add_edge(nest, nodes[1], 2.0));
     edges.insert((nodes[2],nest), graph.add_edge(nest, nodes[2], 1.0));
     edges.insert((nodes[3], nodes[2]), graph.add_edge(nodes[2], nodes[3], 1.0));
     edges.insert((food,nodes[3]), graph.add_edge(nodes[3], food, 1.0));
-    edges.insert((nodes[4], nodes[1]), graph.add_edge(nodes[1], nodes[4], 1.0));
-    edges.insert((nodes[5], nodes[4]), graph.add_edge(nodes[4], nodes[5], 1.0));
-    edges.insert((nodes[6], nodes[5]), graph.add_edge(nodes[5], nodes[6], 1.0));
-    edges.insert((nodes[7], nodes[6]), graph.add_edge(nodes[6], nodes[7], 1.0));
-    edges.insert((food, nodes[7]), graph.add_edge(nodes[7], food, 1.0));
-    edges.insert((nodes[8], nodes[0]), graph.add_edge(nodes[0], nodes[8], 1.0));
-    edges.insert((nodes[9], nodes[8]), graph.add_edge(nodes[8], nodes[9], 1.0));
-    edges.insert(( food,nodes[9]), graph.add_edge( food,nodes[9], 1.0));
+    edges.insert((nodes[4], nodes[1]), graph.add_edge(nodes[1], nodes[4], 2.0));
+    edges.insert((nodes[5], nodes[4]), graph.add_edge(nodes[4], nodes[5], 2.0));
+    edges.insert((nodes[6], nodes[5]), graph.add_edge(nodes[5], nodes[6], 2.0));
+    edges.insert((nodes[7], nodes[6]), graph.add_edge(nodes[6], nodes[7], 2.0));
+    edges.insert((food, nodes[7]), graph.add_edge(nodes[7], food, 2.0));
+    edges.insert((nodes[8], nodes[0]), graph.add_edge(nodes[0], nodes[8], 2.0));
+    edges.insert((nodes[9], nodes[8]), graph.add_edge(nodes[8], nodes[9], 2.0));
+    edges.insert(( food,nodes[9]), graph.add_edge( food,nodes[9], 2.0));
+
+    // edges.insert((nodes[3], nodes[4]), graph.add_edge(nodes[3], nodes[4], 2.0));
+    // edges.insert((nodes[4], nodes[3]), graph.add_edge(nodes[4], nodes[3], 2.0));
 
     println!("{:?}", Dot::with_config(&graph, &[Config::EdgeIndexLabel]));
-    let mut pheromonematrix = vec![vec![0.0; 12]; 12];
+    let mut pheromonematrix = vec![vec![1.0; 12]; 12];
     //dbg!(&edges);
-    let depth = 25;
+    let depth = 250;
     ACO(&mut pheromonematrix, &graph, &edges, &nest, &food, depth);
-    let mut i = 0 ;
-    let mut j = 0 ; 
-    for nodes in graph.node_indices(){
-        println!("Node: {:?}", nodes);
-        //dbg!(i);
-        for nodes2 in graph.node_indices(){
-            if i==12 || j==12{
-                break;
-            }
-            if pheromonematrix[i][j] != 0.0{
-                println!("pheromone from {:?} to {:?} is {:?}", nodes, nodes2, pheromonematrix[i][j]);
-            }
-            j+=1;
-        }
-        i+=1;
+    // let mut i = 0 ;
+    // let mut j = 0 ; 
+    // for nodes in graph.node_indices(){
+    //     println!("Node: {:?}", nodes);
+    //     //dbg!(i);
+    //     for nodes2 in graph.node_indices(){
+    //         if i==12 || j==12{
+    //             break;
+    //         }
+    //         if pheromonematrix[i][j] != 0.0{
+    //             println!("pheromone from {:?} to {:?} is {:?}", nodes, nodes2, pheromonematrix[i][j]);
+    //         }
+    //         j+=1;
+    //     }
+    //     i+=1;
+    // }
+
+    for node in graph.neighbors(food){
+        println!("Node: {:?}", node);
     }
 
 
-
-
-    //println!("{:?}", Dot::with_config(&graph, &[Config::EdgeIndexLabel]));
+    println!("{:?}", Dot::with_config(&graph, &[Config::EdgeIndexLabel]));
 
 }
 
@@ -85,29 +91,38 @@ struct Ant {
     location: NodeIndex,
     finished: bool,
     hasFood: bool,
+    path_to: Vec<NodeIndex>,
+    path_back: Vec<NodeIndex>,
     path: Vec<NodeIndex>,
     totalDistance: f64,
 }
 
 impl Ant{
-    fn new(id: i32, location: NodeIndex) -> Self{
+    fn new(id: i32, location: NodeIndex, goal : NodeIndex) -> Self{
         Ant{
             id: id,
             location: location,
             finished: false,
             hasFood: false,
-            path: Vec::new(),
+            path_to: vec![location],
+            path_back: vec![goal],
+            path: vec![],
             totalDistance: 0.0,
         }
     }
 }
 
-fn ACO(pheromoneMatrix: &mut Vec<Vec<f64>>, graph: &Graph<&str,f64,Undirected>, edges: &HashMap<(NodeIndex,NodeIndex), petgraph::prelude::EdgeIndex>, nest:&NodeIndex,food:&NodeIndex, depth : i32) {
+fn ACO(pheromoneMatrix: &mut Vec<Vec<f64>>, graph: &Graph<&str,f64,Undirected>, edges: &HashMap<(NodeIndex,NodeIndex), petgraph::prelude::EdgeIndex>, nest:&NodeIndex,food:&NodeIndex, depth : i32){
+    // let mut best_path: Vec<Vec<&NodeIndex>>= Vec::new();
+    // let mut map_vec = Vec::new();
+    let mut best_map: HashMap<Vec<NodeIndex>,i32>  = HashMap::new();
     for i in 0..depth{
-        let mut ants = vec![Ant::new(1, *nest),Ant::new(2, *nest), Ant::new(3, *nest), Ant::new(4, *nest), Ant::new(5, *nest), Ant::new(6, *nest)];
+        best_map  = HashMap::new();
+        
+        let mut ants = vec![Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(2, *nest, *food), Ant::new(3, *nest, *food), Ant::new(4, *nest, *food), Ant::new(5, *nest, *food), Ant::new(6, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food),Ant::new(1, *nest, *food)];
         //,Ant::new(2, *nest), Ant::new(3, *nest), Ant::new(4, *nest), Ant::new(5, *nest), Ant::new(6, *nest), Ant::new(7, *nest), Ant::new(8, *nest), Ant::new(9, *nest), Ant::new(10, *nest)
         //let mut pheromonematrix = pheromoneMatrix.clone();
-    
+        //best_map = HashMap::new();
         let mut runningAnts = ants.len();
     
         //while !ants.iter().fold( true, |acc,ant| acc&&ant.finished){  //marche pas a cause du borrow
@@ -120,23 +135,42 @@ fn ACO(pheromoneMatrix: &mut Vec<Vec<f64>>, graph: &Graph<&str,f64,Undirected>, 
                     ants[i].location= nextNode(ants[i].location, pheromoneMatrix, graph, edges, &mut ants[i]);
                     //dbg!(ants[i].location);
                     //dbg!(&ants[i].path);
+                    //dbg!(&ants[i].totalDistance);
                     if ants[i].location == *food && !ants[i].hasFood{
                         ants[i].hasFood = true;
-                        ants[i].path = vec![*food];
-                        dbg!("ant has food");
+                        //ants[i].path = vec![*food];
+                        //dbg!("ant has food");
                     }
                     if ants[i].location == *nest && ants[i].hasFood{
                         ants[i].finished = true;
+                        let mut temp_path = ants[i].path_to.clone();
+                        temp_path.pop();
+                        temp_path.append(ants[i].path_back.clone().as_mut());
+                        ants[i].path= temp_path;
+                        //ants[i].path.append(ants[i].path_back.clone().as_mut());
                         runningAnts-=1;
-                        dbg!("ant finished");
+                        //dbg!("ant finished");
                     }
                 }
     
             }
         }
+        for i in 0..ants.len(){
+            *best_map.entry(ants[i].clone().path).or_insert(1) += 1;
+        }
+        dbg!(&best_map);
+        //map_vec.push(best_map.clone());
+        //map_vec.push(best_map.to_owned().iter().max_by(|a, b| a.1.cmp(&b.1)).map(|(k, _v)| k).to_owned().unwrap());
+        // let x = best_map.to_owned().iter().max_by(|a, b| a.1.cmp(&b.1)).map(|(k, _v)| k).to_owned();
+        // best_path.push(x);
         depositPheromone(ants, pheromoneMatrix, edges);
-        dbg!(&pheromoneMatrix);
+        //dbg!(&pheromoneMatrix);
     }
+    // for map in map_vec{
+    //     let x = map.clone().iter().max_by(|a, b| a.1.cmp(&b.1)).map(|(k, _v)| k).clone().unwrap();
+    //     best_path.push(x);
+    // }
+    //dbg!(map_vec);
 
 }
 
@@ -151,20 +185,61 @@ fn nextNode(currentNode: NodeIndex, pheromoneMatrix: &mut Vec<Vec<f64>>, graph: 
     //dbg!(currentNode);
     //dbg!(graph.neighbors(currentNode));
     for node in graph.neighbors(currentNode){
-        if ant.path.contains(&node){
-            continue;
+        //dbg!(node);
+        // if ant.hasFood{
+        //     if ant.path_back.contains(&node){
+        //         continue;
+        //     }
+        // }
+        // else {
+        //     if ant.path_to.contains(&node){
+        //         continue;
+        //     }
+        // }
+
+        // //dbg!(currentNode, node);
+        // let value = pheromoneMatrix[currentNode.index()][node.index()].powf(alpha) * (graph.edge_weight(edges[&(currentNode, node)]).unwrap().to_owned() as f64).powf(-beta);
+        // //dbg!(value);
+        // sum += value;
+        // Neighbors.push(node);
+        // probabilities.push(value);
+        if !(ant.hasFood && ant.path_back.contains(&node) || !ant.hasFood && ant.path_to.contains(&node)){
+            let value = pheromoneMatrix[currentNode.index()][node.index()].powf(alpha) * (graph.edge_weight(edges[&(currentNode, node)]).unwrap().to_owned() as f64).powf(-beta);
+            //dbg!(value);
+            sum += value;
+            Neighbors.push(node);
+            probabilities.push(value);
         }
-        //dbg!(currentNode, node);
-        let value = pheromoneMatrix[currentNode.index()][node.index()].powf(alpha) + (graph.edge_weight(edges[&(currentNode, node)]).unwrap().to_owned() as f64).powf(-beta);
-        sum += value;
-        Neighbors.push(node);
-        probabilities.push(value);
+        // else{
+        //     if ant.hasFood{
+        //         // let x = ant.path_back.pop().unwrap();
+        //         // ant.totalDistance -= graph.edge_weight(edges[&(x, *ant.path_back.last().unwrap())]).unwrap().to_owned() as f64;
+        //         // return *ant.path_back.last().unwrap();
+        //         let x = *ant.path_back.last().unwrap();
+        //         ant.path_back.push(x);
+        //         return x;
+        //     }
+        //     else{
+        //         // let x = ant.path_to.pop().unwrap();
+        //         // ant.totalDistance -= graph.edge_weight(edges[&(x, *ant.path_to.last().unwrap())]).unwrap().to_owned() as f64;
+        //         // return *ant.path_to.last().unwrap();
+        //         let x = *ant.path_to.last().unwrap();
+        //         ant.path_to.push(x);
+        //         return x;
+        //     }
+        // }
     }
     probabilities = probabilities.iter().map(|x| x/sum).collect::<Vec<f64>>();
     //dbg!(&probabilities);
     //select next node according to probabilities
     let mut rng = rand::thread_rng();
     let x = probabilities.iter().fold(0.0, |acc, x| acc + x*100.0);
+
+    // dbg!(currentNode);
+    // dbg!(&ant.path_to);
+    // dbg!(&ant.path_back);
+    // dbg!(&probabilities);
+    // dbg!(x);
     //dbg!(x);
     let mut random = rng.gen_range(0..x as i64) as f64;
     //dbg!(random);
@@ -175,7 +250,13 @@ fn nextNode(currentNode: NodeIndex, pheromoneMatrix: &mut Vec<Vec<f64>>, graph: 
         i += 1;
     }
     //let i = rng.gen_range(0..probabilities.len());
-    ant.path.push(Neighbors[i]);
+    if ant.hasFood{
+        ant.path_back.push(Neighbors[i]);
+    }
+    else {
+        ant.path_to.push(Neighbors[i]);
+    }
+
     ant.totalDistance += graph.edge_weight(edges[&(currentNode, Neighbors[i])]).unwrap().to_owned() as f64;
     //ant.location = graph.neighbors(currentNode).nth(i).unwrap();
     return Neighbors[i];
@@ -186,7 +267,7 @@ fn depositPheromone( ants: Vec<Ant>, pheromoneMatrix: &mut Vec<Vec<f64>>, edges:
     //dbg!("aaaaaaaaaaaaaa");
     for ant in ants{
         for i in 0..ant.path.len()-2{
-            let value = (1.0-rho)*pheromoneMatrix[ant.path[i].index()][ant.path[i+1].index()] + 1.0/ant.totalDistance;
+            let value = (1.0-rho)*pheromoneMatrix[ant.path[i].index()][ant.path[i+1].index()] + (1.0/ant.totalDistance);
             //dbg!((1.0-rho)*pheromoneMatrix[ant.path[i].index()][ant.path[i+1].index()]);
             pheromoneMatrix[ant.path[i].index()][ant.path[i+1].index()] = value;
             pheromoneMatrix[ant.path[i+1].index()][ant.path[i].index()] = value;
